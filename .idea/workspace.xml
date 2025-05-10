@@ -7,6 +7,9 @@
     <list default="true" id="e0d91ce9-395c-4505-b3ba-e9572f17554d" name="Changes" comment="Initial commit.  Converting Lesson_04 to Shiny.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/capital_role.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/capital_role.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/law_of_large_numbers.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/law_of_large_numbers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/risk_pooling.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/risk_pooling.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -99,7 +102,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1746882588720</updated>
-      <workItem from="1746882589721" duration="4149000" />
+      <workItem from="1746882589721" duration="4912000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit.  Converting Lesson_04 to Shiny.">
       <option name="closed" value="true" />
@@ -117,7 +120,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746883317926</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Initial commit.  Converting Lesson_04 to Shiny.">
+      <option name="closed" value="true" />
+      <created>1746886857382</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1746886857382</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

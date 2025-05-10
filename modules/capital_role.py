@@ -4,7 +4,7 @@ import pandas as pd
 from matplotlib.figure import Figure
 
 
-def demonstrate_capital_role(capital_amount=50, num_years=10, return_fig=False):
+def demonstrate_capital_role(capital_amount=50, num_years=10, seed=42, return_fig=False):
     """
     Demonstrates how capital protects an insurance company from bankruptcy
 
@@ -14,6 +14,8 @@ def demonstrate_capital_role(capital_amount=50, num_years=10, return_fig=False):
         Initial capital in millions
     num_years : int
         Number of years to simulate
+    seed : int
+        Random seed for reproducibility
     return_fig : bool
         If True, returns the figure and stats for Shiny integration
 
@@ -24,8 +26,8 @@ def demonstrate_capital_role(capital_amount=50, num_years=10, return_fig=False):
     stats : dict
         Key statistics (if return_fig is True)
     """
-    # Set random seed for consistent results
-    np.random.seed(42)
+    # Use the provided seed for consistent results
+    np.random.seed(seed)
 
     # Base parameters
     annual_premium = 100.0  # $100M annual premium - consistent with balance sheet

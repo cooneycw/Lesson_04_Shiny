@@ -268,26 +268,20 @@ def server(input, output, session):
     risk_sim_offset = reactive.Value(0)
     capital_sim_offset = reactive.Value(0)
 
-    # Update offset values when re-simulate buttons are clicked - FIXED as suggested
-    @reactive.Effect
+    # Update offset values when re-simulate buttons are clicked - Fixed to use reactive.event
+    @reactive.event(input.resim_lln)
     def _():
-        # Simply accessing the button value will trigger the effect on each click
-        input.resim_lln()
-        # Set a new random offset
+        # Set a new random offset when the button is clicked
         lln_sim_offset.set(random.randint(1, 10000))
 
-    @reactive.Effect
+    @reactive.event(input.resim_risk)
     def _():
-        # Simply accessing the button value will trigger the effect on each click
-        input.resim_risk()
-        # Set a new random offset
+        # Set a new random offset when the button is clicked
         risk_sim_offset.set(random.randint(1, 10000))
 
-    @reactive.Effect
+    @reactive.event(input.resim_capital)
     def _():
-        # Simply accessing the button value will trigger the effect on each click
-        input.resim_capital()
-        # Set a new random offset
+        # Set a new random offset when the button is clicked
         capital_sim_offset.set(random.randint(1, 10000))
 
     # Law of Large Numbers - RANDOM MODULE
@@ -295,14 +289,14 @@ def server(input, output, session):
     def lln_data():
         # Base seed on the slider value to ensure consistency
         # when returning to the same slider value
+        offset = lln_sim_offset()  # force reactive dependency
         base_seed = int(input.true_probability() * 10000)
 
         # Add the offset to create variation when re-simulate is clicked
-        seed = base_seed + lln_sim_offset()
+        seed = base_seed + offset
 
-        # Set random seed and generate visualization
-        np.random.seed(seed)
-        return demonstrate_law_of_large_numbers(input.true_probability(), return_fig=True)
+        # Pass the seed to the module
+        return demonstrate_law_of_large_numbers(input.true_probability(), seed=seed, return_fig=True)
 
     @output
     @render.plot
@@ -328,16 +322,17 @@ def server(input, output, session):
     @reactive.Calc
     def risk_data():
         # Base seed on the slider values to ensure consistency
+        risk_offset = risk_sim_offset()  # force reactive dependency
         base_seed = int(input.accident_probability() * 10000 + input.num_policyholders())
 
         # Add the offset to create variation when re-simulate is clicked
-        seed = base_seed + risk_sim_offset()
+        seed = base_seed + risk_offset
 
-        # Set random seed and generate visualization
-        np.random.seed(seed)
+        # Pass the seed to the module
         return demonstrate_risk_pooling(
             input.accident_probability(),
             input.num_policyholders(),
+            seed=seed,
             return_fig=True
         )
 
@@ -447,16 +442,17 @@ def server(input, output, session):
     @reactive.Calc
     def capital_role_data():
         # Base seed on the slider values to ensure consistency
+        capital_offset = capital_sim_offset()  # force reactive dependency
         base_seed = int(input.capital_amount() * 100 + input.num_years() * 10)
 
         # Add the offset to create variation when re-simulate is clicked
-        seed = base_seed + capital_sim_offset()
+        seed = base_seed + capital_offset
 
-        # Set random seed and generate visualization
-        np.random.seed(seed)
+        # Pass the seed to the module
         return demonstrate_capital_role(
             input.capital_amount(),
             input.num_years(),
+            seed=seed,
             return_fig=True
         )
 

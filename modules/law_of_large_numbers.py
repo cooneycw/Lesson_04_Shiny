@@ -4,7 +4,7 @@ import pandas as pd
 from matplotlib.figure import Figure
 
 
-def demonstrate_law_of_large_numbers(true_probability=0.05, return_fig=False):
+def demonstrate_law_of_large_numbers(true_probability=0.05, seed=42, return_fig=False):
     """
     Demonstrates the Law of Large Numbers using an insurance claims example
 
@@ -12,6 +12,8 @@ def demonstrate_law_of_large_numbers(true_probability=0.05, return_fig=False):
     -----------
     true_probability : float
         The true probability of an accident
+    seed : int
+        Random seed for reproducibility
     return_fig : bool
         If True, returns the figure and stats for Shiny integration
 
@@ -28,8 +30,8 @@ def demonstrate_law_of_large_numbers(true_probability=0.05, return_fig=False):
     # Run experiment - simulate accidents for each sample size
     results = []
 
-    # Set a fixed seed for consistent results in the web app
-    np.random.seed(42)
+    # Set the seed using the provided value
+    np.random.seed(seed)
 
     for size in sample_sizes:
         # Generate random accidents (1 = accident, 0 = no accident)

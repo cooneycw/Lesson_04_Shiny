@@ -4,7 +4,7 @@ import pandas as pd
 from matplotlib.figure import Figure
 
 
-def demonstrate_risk_pooling(accident_probability=0.05, num_policyholders=100, return_fig=False):
+def demonstrate_risk_pooling(accident_probability=0.05, num_policyholders=100, seed=42, return_fig=False):
     """
     Demonstrates the concept of risk pooling in insurance
 
@@ -14,6 +14,8 @@ def demonstrate_risk_pooling(accident_probability=0.05, num_policyholders=100, r
         The probability of an accident
     num_policyholders : int
         The number of policyholders
+    seed : int
+        Random seed for reproducibility
     return_fig : bool
         If True, returns the figure and stats for Shiny integration
 
@@ -28,7 +30,7 @@ def demonstrate_risk_pooling(accident_probability=0.05, num_policyholders=100, r
     CLAIM_AMOUNT = 20000
 
     # Set random seed for consistent results
-    np.random.seed(42)
+    np.random.seed(seed)
 
     # Run the simulation - generate random accidents
     accidents = np.random.random(num_policyholders) < accident_probability
