@@ -65,6 +65,41 @@ def demonstrate_law_of_large_numbers(true_probability=0.05, seed=42, return_fig=
         ax1.grid(True, alpha=0.3)
         ax1.legend()
 
+        # Format x-tick labels to avoid scientific notation and use commas
+        from matplotlib.ticker import ScalarFormatter, FuncFormatter
+
+        def format_number(x, pos):
+            if x >= 1000:
+                return f'{x:,.0f}'  # Use commas for thousands
+            return f'{x:.0f}'
+
+        ax1.xaxis.set_major_formatter(FuncFormatter(format_number))
+
+        # Set fixed y-axis scale based on 90% confidence interval for the smallest sample (10 drivers)
+        # Using normal approximation to binomial with continuity correction
+        smallest_sample = sample_sizes[0]  # 10 drivers
+        p = true_probability
+        # Z-score for 90% confidence is 1.645
+        z_score = 1.645
+
+        # Calculate confidence interval bounds for the smallest sample
+        # Formula: p ± z * sqrt(p(1-p)/n)
+        ci_width = z_score * np.sqrt(p * (1 - p) / smallest_sample)
+        lower_bound = max(0, p - ci_width)
+        upper_bound = min(1, p + ci_width)
+
+        # Set y-axis with some padding to ensure all points are visible
+        padding = 0.05  # 5% padding
+        y_min = max(0, lower_bound - padding)
+        y_max = min(1, upper_bound + padding)
+
+        # Ensure the y-axis always includes the true probability
+        y_min = min(y_min, true_probability * 0.5)
+        y_max = max(y_max, true_probability * 1.5)
+
+        # Set y-axis limits
+        ax1.set_ylim(y_min, y_max)
+
         # Format x-tick labels to avoid scientific notation
         def format_number(x, pos):
             if x >= 1000000:
@@ -79,12 +114,31 @@ def demonstrate_law_of_large_numbers(true_probability=0.05, seed=42, return_fig=
                          xytext=(0, 10),
                          ha='center')
 
-        # Plot 2: Error vs sample size
-        ax2.loglog(df['sample_size'], df['error'], 'ro-', linewidth=2, markersize=8)
+        # Plot 2: Error vs sample size - using semilogx (log scale for x, linear for y)
+        # This allows us to include 0 on the y-axis
+        ax2.semilogx(df['sample_size'], df['error'], 'ro-', linewidth=2, markersize=8)
         ax2.set_xlabel('Number of Drivers')
         ax2.set_ylabel('Error (|Observed - True|)')
         ax2.set_title(f'Error vs. Sample Size')
         ax2.grid(True, alpha=0.3)
+
+        # Format x-tick labels to avoid scientific notation and use commas
+        ax2.xaxis.set_major_formatter(FuncFormatter(format_number))
+
+        # Format y-tick labels to show more decimal places for small values
+        def format_error_value(y, pos):
+            if y < 0.001:
+                return f'{y:.4f}'
+            elif y < 0.01:
+                return f'{y:.3f}'
+            else:
+                return f'{y:.2f}'
+
+        ax2.yaxis.set_major_formatter(FuncFormatter(format_error_value))
+
+        # Set y-axis to start from 0
+        y_max = max(df['error']) * 1.2  # Add 20% to the max for clarity
+        ax2.set_ylim(0, y_max)
 
         # Add text annotations for each point
         for i, row in df.iterrows():
