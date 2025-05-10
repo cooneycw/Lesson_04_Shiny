@@ -145,7 +145,8 @@ def demonstrate_capital_role(capital_amount=50, num_years=10, seed=42, return_fi
             'num_years': num_years,
             'survival_rate': survival_rate,
             'average_years': average_years,
-            'average_final_capital': average_final_capital
+            'average_final_capital': average_final_capital,
+            'seed': seed  # Include seed in stats
         }
 
         return fig, stats
@@ -161,7 +162,7 @@ def demonstrate_capital_role(capital_amount=50, num_years=10, seed=42, return_fi
                 labels=[f'Survived all {num_years} years', 'Failed before year ' + str(num_years)],
                 colors=['green', 'red'], autopct='%1.1f%%', startangle=90,
                 explode=(0.1, 0), textprops={'fontsize': 12})
-        ax1.set_title(f'Survival Rate with ${capital_amount:.1f}M Initial Capital', fontsize=14)
+        ax1.set_title(f'Survival Rate with ${capital_amount:.1f}M Initial Capital (Seed: {seed})', fontsize=14)
 
         # Plot 2: Years survived histogram - Adjust bins and labels based on years
         if num_years <= 25:
@@ -177,7 +178,7 @@ def demonstrate_capital_role(capital_amount=50, num_years=10, seed=42, return_fi
         ax2.set_xticks(xticks)
         ax2.set_xlabel('Years Survived', fontsize=12)
         ax2.set_ylabel('Number of Companies', fontsize=12)
-        ax2.set_title('Distribution of Survival Years', fontsize=14)
+        ax2.set_title(f'Distribution of Survival Years (Seed: {seed})', fontsize=14)
 
         # Add a vertical line for average
         ax2.axvline(average_years, color='red', linestyle='--',
@@ -234,18 +235,24 @@ def demonstrate_capital_role(capital_amount=50, num_years=10, seed=42, return_fi
                      f"Annual Premium: ${annual_premium:.1f}M\n" \
                      f"Capital Ratio: {capital_ratio:.1f}x Premium\n" \
                      f"Survival Rate (All {num_years} Years): {survival_rate:.1%}\n" \
-                     f"Average Survival: {average_years:.1f} years"
+                     f"Average Survival: {average_years:.1f} years\n" \
+                     f"Simulation Seed: {seed}"
 
         # Simple positioning at top-right
         plt.text(0.95, 0.95, stats_text, transform=plt.gca().transAxes, fontsize=12,
                  verticalalignment='top', horizontalalignment='right',
                  bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.7))
 
+        plt.title(f'Survival Curve (Seed: {seed})', fontsize=14)
+        plt.xlabel('Year', fontsize=12)
+        plt.ylabel('Survival Probability', fontsize=12)
+        plt.grid(True, alpha=0.3)
         plt.tight_layout()
         plt.show()
 
         # Display insurance interpretation
         print("\nInsurance Interpretation:")
+        print(f"• Simulation Seed: {seed}")
         print(f"• Capital serves as a buffer against unexpected losses.")
         print(
             f"• With ${capital_amount:.1f}M of initial capital ({capital_ratio:.1f}x annual premium), {survival_rate:.1%} of companies survived all {num_years} years.")

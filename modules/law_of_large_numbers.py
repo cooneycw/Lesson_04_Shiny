@@ -61,7 +61,7 @@ def demonstrate_law_of_large_numbers(true_probability=0.05, seed=42, return_fig=
         ax1.axhline(true_probability, color='red', linestyle='--', label=f'True probability: {true_probability:.1%}')
         ax1.set_xlabel('Number of Drivers')
         ax1.set_ylabel('Observed Accident Rate')
-        ax1.set_title('Observed Accident Rate vs. Sample Size')
+        ax1.set_title(f'Observed Accident Rate vs. Sample Size')
         ax1.grid(True, alpha=0.3)
         ax1.legend()
 
@@ -83,7 +83,7 @@ def demonstrate_law_of_large_numbers(true_probability=0.05, seed=42, return_fig=
         ax2.loglog(df['sample_size'], df['error'], 'ro-', linewidth=2, markersize=8)
         ax2.set_xlabel('Number of Drivers')
         ax2.set_ylabel('Error (|Observed - True|)')
-        ax2.set_title('Error vs. Sample Size')
+        ax2.set_title(f'Error vs. Sample Size')
         ax2.grid(True, alpha=0.3)
 
         # Add text annotations for each point
@@ -96,6 +96,10 @@ def demonstrate_law_of_large_numbers(true_probability=0.05, seed=42, return_fig=
 
         fig.tight_layout()
 
+        # Remove seed text from figure
+        # fig.text(0.5, 0.01, f"Simulation Seed: {seed}", ha='center',
+        #          fontsize=12, bbox=dict(facecolor='lightgray', alpha=0.5))
+
         # Return the figure and key statistics
         stats = {
             'small_sample': results[0]['observed_probability'],
@@ -103,7 +107,8 @@ def demonstrate_law_of_large_numbers(true_probability=0.05, seed=42, return_fig=
             'large_sample': results[7]['observed_probability'],
             'small_error': results[0]['error'],
             'medium_error': results[5]['error'],
-            'large_error': results[7]['error']
+            'large_error': results[7]['error'],
+            'seed': seed  # Include seed in stats
         }
 
         return fig, stats
@@ -119,7 +124,7 @@ def demonstrate_law_of_large_numbers(true_probability=0.05, seed=42, return_fig=
         ax1.axhline(true_probability, color='red', linestyle='--', label=f'True probability: {true_probability:.1%}')
         ax1.set_xlabel('Number of Drivers')
         ax1.set_ylabel('Observed Accident Rate')
-        ax1.set_title('Observed Accident Rate vs. Sample Size')
+        ax1.set_title(f'Observed Accident Rate vs. Sample Size (Seed: {seed})')
         ax1.grid(True, alpha=0.3)
         ax1.legend()
 
@@ -144,7 +149,7 @@ def demonstrate_law_of_large_numbers(true_probability=0.05, seed=42, return_fig=
         ax2.loglog(df['sample_size'], df['error'], 'ro-', linewidth=2, markersize=8)
         ax2.set_xlabel('Number of Drivers')
         ax2.set_ylabel('Error (|Observed - True|)')
-        ax2.set_title('Error vs. Sample Size')
+        ax2.set_title(f'Error vs. Sample Size (Seed: {seed})')
         ax2.grid(True, alpha=0.3)
         ax2.xaxis.set_major_formatter(FuncFormatter(format_number))
 
@@ -156,11 +161,16 @@ def demonstrate_law_of_large_numbers(true_probability=0.05, seed=42, return_fig=
                          xytext=(0, 10),
                          ha='center')
 
+        # Add a text annotation with the seed value
+        fig.text(0.5, 0.01, f"Simulation Seed: {seed}", ha='center',
+                 fontsize=12, bbox=dict(facecolor='lightgray', alpha=0.5))
+
         plt.tight_layout()
         plt.show()
 
         # Display insurance interpretation
         print("\nInsurance Interpretation:")
+        print(f"• Simulation Seed: {seed}")
         print(f"• With only 10 drivers, the observed accident rate was {results[0]['observed_probability']:.1%}, " +
               f"which is {results[0]['error'] * 100:.1f} percentage points away from the true rate of {true_probability:.1%}")
         print(f"• With 50,000 drivers, the observed accident rate was {results[7]['observed_probability']:.1%}, " +

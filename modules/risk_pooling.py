@@ -114,7 +114,7 @@ def demonstrate_risk_pooling(accident_probability=0.05, num_policyholders=100, s
         )
 
         ax1.set_ylabel('Cost ($)')
-        ax1.set_title('Individual Risk Outcomes vs Pooled Outcomes')
+        ax1.set_title(f'Individual Risk Outcomes vs Pooled Outcomes')
         ax1.grid(axis='y', alpha=0.3)
         ax1.legend(loc='upper center')
 
@@ -126,7 +126,20 @@ def demonstrate_risk_pooling(accident_probability=0.05, num_policyholders=100, s
                 [pool_premium_total, total_losses],
                 color=['green', 'blue'], alpha=0.7)
         ax2.set_ylabel('Amount ($)')
-        ax2.set_title('Insurer\'s Perspective')
+        ax2.set_title(f'Insurer\'s Perspective')
+
+        # Calculate expected maximum loss at 99% confidence level based on binomial distribution
+        # This helps keep the y-axis consistent across different simulations
+        p = accident_probability
+        n = num_policyholders
+        # Using normal approximation to binomial with continuity correction for 99% CI (2.576 is z-score for 99%)
+        max_expected_claims = n * p + 2.576 * np.sqrt(n * p * (1 - p)) + 0.5
+        max_expected_loss = max_expected_claims * CLAIM_AMOUNT
+
+        # Set y-axis to use the consistent 99% CI maximum
+        y_max = max(max_expected_loss, total_losses) * 1.1  # Add 10% margin
+        ax2.set_ylim(0, y_max)
+
         ax2.grid(True, alpha=0.3)
 
         # Add explanatory text
@@ -142,6 +155,10 @@ def demonstrate_risk_pooling(accident_probability=0.05, num_policyholders=100, s
         ax2.text(1, total_losses + 0.05 * max(pool_premium_total, total_losses),
                  f"Actual/Expected: {pool_performance:.2f}", ha='center', color=performance_color)
 
+        # Remove seed text from figure
+        # fig.text(0.5, 0.01, f"Simulation Seed: {seed}", ha='center',
+        #          fontsize=12, bbox=dict(facecolor='lightgray', alpha=0.5))
+
         fig.tight_layout()
 
         # Return the figure and key statistics
@@ -151,7 +168,8 @@ def demonstrate_risk_pooling(accident_probability=0.05, num_policyholders=100, s
             'fair_premium': fair_premium,
             'total_losses': total_losses,
             'pool_premium_total': pool_premium_total,
-            'pool_performance': pool_performance
+            'pool_performance': pool_performance,
+            'seed': seed  # Include seed in stats
         }
 
         return fig, stats
@@ -224,7 +242,7 @@ def demonstrate_risk_pooling(accident_probability=0.05, num_policyholders=100, s
         )
 
         ax1.set_ylabel('Cost ($)')
-        ax1.set_title('Individual Risk Outcomes vs Pooled Outcomes')
+        ax1.set_title(f'Individual Risk Outcomes vs Pooled Outcomes (Seed: {seed})')
         ax1.grid(axis='y', alpha=0.3)
         ax1.legend(loc='upper center')
 
@@ -236,7 +254,7 @@ def demonstrate_risk_pooling(accident_probability=0.05, num_policyholders=100, s
                 [pool_premium_total, total_losses],
                 color=['green', 'blue'], alpha=0.7)
         ax2.set_ylabel('Amount ($)')
-        ax2.set_title('Insurer\'s Perspective')
+        ax2.set_title(f'Insurer\'s Perspective (Seed: {seed})')
         ax2.grid(True, alpha=0.3)
 
         # Add explanatory text
@@ -252,11 +270,16 @@ def demonstrate_risk_pooling(accident_probability=0.05, num_policyholders=100, s
         ax2.text(1, total_losses + 0.05 * max(pool_premium_total, total_losses),
                  f"Actual/Expected: {pool_performance:.2f}", ha='center', color=performance_color)
 
+        # Add a text annotation with the seed value
+        fig.text(0.5, 0.01, f"Simulation Seed: {seed}", ha='center',
+                 fontsize=12, bbox=dict(facecolor='lightgray', alpha=0.5))
+
         plt.tight_layout()
         plt.show()
 
         # Display insurance interpretation
         print("\nInsurance Interpretation:")
+        print(f"• Simulation Seed: {seed}")
         print(f"• Individual Risk: Each person has a {accident_probability:.1%} chance of a ${CLAIM_AMOUNT:,.0f} loss.")
         print(
             f"• Without Insurance: {num_with_loss} people ({percent_with_loss:.1f}%) faced a ${CLAIM_AMOUNT:,.0f} loss in this simulation.")

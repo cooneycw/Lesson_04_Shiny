@@ -75,6 +75,13 @@ custom_css = """
 .btn-resim:hover {
     background-color: #2980B9;
 }
+
+.seed-info {
+    font-style: italic;
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+}
 """
 
 # App UI - improved layout with re-simulate buttons only for random modules
@@ -105,7 +112,10 @@ app_ui = ui.page_fluid(
                                    ui.br(),
                                    ui.input_action_button("resim_lln", "Re-simulate", class_="btn-resim")
                                    ),
-                         ui.column(6)
+                         ui.column(6,
+                                   ui.br(),
+                                   ui.div({"class": "seed-info"}, ui.output_text("lln_seed_info"))
+                                   )
                      ),
                      ui.hr(),
                      # Main content below with clear separation
@@ -143,7 +153,10 @@ app_ui = ui.page_fluid(
                                    ui.br(),
                                    ui.input_action_button("resim_risk", "Re-simulate", class_="btn-resim")
                                    ),
-                         ui.column(4)
+                         ui.column(4,
+                                   ui.br(),
+                                   ui.div({"class": "seed-info"}, ui.output_text("risk_seed_info"))
+                                   )
                      ),
                      ui.hr(),
                      # Main content below with clear separation
@@ -245,7 +258,10 @@ app_ui = ui.page_fluid(
                                    ui.br(),
                                    ui.input_action_button("resim_capital", "Re-simulate", class_="btn-resim")
                                    ),
-                         ui.column(4)
+                         ui.column(4,
+                                   ui.br(),
+                                   ui.div({"class": "seed-info"}, ui.output_text("capital_seed_info"))
+                                   )
                      ),
                      ui.hr(),
                      # Main content below with clear separation
@@ -268,34 +284,71 @@ def server(input, output, session):
     risk_sim_offset = reactive.Value(0)
     capital_sim_offset = reactive.Value(0)
 
-    # Update offset values when re-simulate buttons are clicked - Fixed to use reactive.event
+    # Update offset values when re-simulate buttons are clicked
+    @reactive.Effect
     @reactive.event(input.resim_lln)
-    def _():
-        # Set a new random offset when the button is clicked
-        lln_sim_offset.set(random.randint(1, 10000))
+    def _update_lln_seed():
+        new_offset = random.randint(1, 10000)
+        lln_sim_offset.set(new_offset)
+        print(f"LLN seed offset updated to: {new_offset}")
 
+    @reactive.Effect
     @reactive.event(input.resim_risk)
-    def _():
-        # Set a new random offset when the button is clicked
-        risk_sim_offset.set(random.randint(1, 10000))
+    def _update_risk_seed():
+        new_offset = random.randint(1, 10000)
+        risk_sim_offset.set(new_offset)
+        print(f"Risk pooling seed offset updated to: {new_offset}")
 
+    @reactive.Effect
     @reactive.event(input.resim_capital)
-    def _():
-        # Set a new random offset when the button is clicked
-        capital_sim_offset.set(random.randint(1, 10000))
+    def _update_capital_seed():
+        new_offset = random.randint(1, 10000)
+        capital_sim_offset.set(new_offset)
+        print(f"Capital role seed offset updated to: {new_offset}")
+
+    # Reactive calculations for seed values
+    @reactive.Calc
+    def lln_seed():
+        base_seed = int(input.true_probability() * 10000)
+        offset = lln_sim_offset.get()
+        return base_seed + offset, base_seed, offset
+
+    @reactive.Calc
+    def risk_seed():
+        base_seed = int(input.accident_probability() * 10000 + input.num_policyholders())
+        offset = risk_sim_offset.get()
+        return base_seed + offset, base_seed, offset
+
+    @reactive.Calc
+    def capital_seed():
+        base_seed = int(input.capital_amount() * 100 + input.num_years() * 10)
+        offset = capital_sim_offset.get()
+        return base_seed + offset, base_seed, offset
+
+    # Display seed info in UI
+    @output
+    @render.text
+    def lln_seed_info():
+        seed, base, offset = lln_seed()
+        return f"Seed: {seed} (Base: {base}, Offset: {offset})"
+
+    @output
+    @render.text
+    def risk_seed_info():
+        seed, base, offset = risk_seed()
+        return f"Seed: {seed} (Base: {base}, Offset: {offset})"
+
+    @output
+    @render.text
+    def capital_seed_info():
+        seed, base, offset = capital_seed()
+        return f"Seed: {seed} (Base: {base}, Offset: {offset})"
 
     # Law of Large Numbers - RANDOM MODULE
     @reactive.Calc
     def lln_data():
-        # Base seed on the slider value to ensure consistency
-        # when returning to the same slider value
-        offset = lln_sim_offset()  # force reactive dependency
-        base_seed = int(input.true_probability() * 10000)
-
-        # Add the offset to create variation when re-simulate is clicked
-        seed = base_seed + offset
-
-        # Pass the seed to the module
+        seed, base, offset = lln_seed()
+        print(f"LLN using seed: {seed} (base: {base}, offset: {offset})")
         return demonstrate_law_of_large_numbers(input.true_probability(), seed=seed, return_fig=True)
 
     @output
@@ -308,6 +361,7 @@ def server(input, output, session):
     @render.text
     def lln_interpretation():
         _, stats = lln_data()
+        seed, base, offset = lln_seed()
 
         text = "Insurance Interpretation:\n"
         text += f"• With only 10 drivers, the observed accident rate was {stats['small_sample']:.1%}, "
@@ -321,14 +375,8 @@ def server(input, output, session):
     # Risk Pooling - RANDOM MODULE
     @reactive.Calc
     def risk_data():
-        # Base seed on the slider values to ensure consistency
-        risk_offset = risk_sim_offset()  # force reactive dependency
-        base_seed = int(input.accident_probability() * 10000 + input.num_policyholders())
-
-        # Add the offset to create variation when re-simulate is clicked
-        seed = base_seed + risk_offset
-
-        # Pass the seed to the module
+        seed, base, offset = risk_seed()
+        print(f"Risk Pooling using seed: {seed} (base: {base}, offset: {offset})")
         return demonstrate_risk_pooling(
             input.accident_probability(),
             input.num_policyholders(),
@@ -346,7 +394,6 @@ def server(input, output, session):
     @render.text
     def risk_pooling_interpretation():
         _, stats = risk_data()
-
         claim_amount = 20000  # Fixed claim amount
 
         text = "Insurance Interpretation:\n"
@@ -441,14 +488,8 @@ def server(input, output, session):
     # Capital Role - RANDOM MODULE
     @reactive.Calc
     def capital_role_data():
-        # Base seed on the slider values to ensure consistency
-        capital_offset = capital_sim_offset()  # force reactive dependency
-        base_seed = int(input.capital_amount() * 100 + input.num_years() * 10)
-
-        # Add the offset to create variation when re-simulate is clicked
-        seed = base_seed + capital_offset
-
-        # Pass the seed to the module
+        seed, base, offset = capital_seed()
+        print(f"Capital Role using seed: {seed} (base: {base}, offset: {offset})")
         return demonstrate_capital_role(
             input.capital_amount(),
             input.num_years(),
